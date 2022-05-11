@@ -1,9 +1,14 @@
 const Book = require("../models/Book");
 const asyncHandler = require("express-async-handler");
-const mongoose = require("mongoose");
 
 exports.getAllBooks = asyncHandler(async (req, res) => {
-	const books = await Book.find({});
+
+	let page = req.query.page,itemsPerPage = req.query.itemsPerPage;
+
+	page = +page > 0 ? +page : 1;
+	itemsPerPage = +itemsPerPage > 0 ? +itemsPerPage : 5
+
+	const books = await Book.find({}).skip((page - 1) * itemsPerPage).limit(itemsPerPage);
 
 	if (books?.length === 0) {
 		return res.status(404).send("No books found!");
@@ -60,9 +65,35 @@ exports.createBook = asyncHandler(async (req, res) => {
 exports.updateBook = asyncHandler(async (req, res) => {
 	const { id } = req.params;
 
-	if (!mongoose.Types.ObjectId.isValid(id)) {
-		return res.status(404).send("No book found with this id ");
+	const book = await Book.findOne({ _id: id });
+
+	if(!book){
+		return res.send("No book found with this id")
 	}
 
+	 await Book.updateOne({_id:id},{
+		name:req.body.name || book.name,
+		author:req.body.author || book.author,
+		pages:req.body.pages || book.pages,
+		price:req.body.price || book.price,
+		imageUrl:req.body.imageUrl || book.imageUrl
+	});
+
+	res.send("Book updated successfully");
+
+});
+
+exports.deleteBook = asyncHandler(async (req, res) => {
+	const { id } = req.params;
+
 	const book = await Book.findOne({ _id: id });
+
+	if(!book){
+		return res.send("No book found with this id")
+	}
+
+	 await Book.deleteOne({_id:id});
+
+	res.send("Book deleted successfully");
+
 });
