@@ -5,7 +5,7 @@ const bookSchema = Schema(
 	{
 		name: {
 			type: String,
-			required: true,
+			required: [true, "Book name is required"],
 		},
 		imageUrl: {
 			type: String,
@@ -13,15 +13,15 @@ const bookSchema = Schema(
 		},
 		author: {
 			type: String,
-			required: true,
+			required: [true, "Book author is required"],
 		},
 		pages: {
 			type: Number,
-			required: true,
+			required: [true, "Book pages are required"],
 		},
 		price: {
 			type: Number,
-			required: true,
+			required: [true, "Book price is required"],
 		},
 	},
 	{ timestamps: true },
